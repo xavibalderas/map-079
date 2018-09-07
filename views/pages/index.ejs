@@ -9,51 +9,150 @@
 
   <div id="map"></div>
 
+  <div id="app">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-8">
+          <h1>{{name}}</h1>
+          <ul class="list-group list-group-flush">
+           <li class="list-group-item" v-for="(item, index) in articles">
+           {{ item }}
+           </li>
+         </ul>
+       </div>
+       <div class="col-4">
+         <button type="button" onclick="navigate()"class="btn btn-primary">Go there</button>
+         <div v-if="navigation">
+           <p>Distance: {{distance}}</p>
+           <p>Time: {{time}}</p>
+         </div>
+
+       </div>
+     </div>
+
+    </div>
+  </div>
+  <div id="logo">
+    <img src="/stylesheets/ikea_logo.png" alt="" class="img-rounded center-block">
+  </div>
+
   <script>
 
       //Define the bounds of the map
-     /* var bounds = new L.LatLngBounds(
-              new L.LatLng(49.742313935073504183, 4.5989323407411575317),
-              new L.LatLng(49.742851692813445652, 4.5997658371925345122)
-      );*/
+      var bounds = new L.LatLngBounds(
+              new L.LatLng(47.422932, 8.373202),
+              new L.LatLng(47.420236, 8.378015)
+      );
 
+      var art = [];
       //Create the map
+
+      var place;
+
+      var app = new Vue({
+        el: '#app',
+        data: {
+          name: '',
+          articles: art,
+          navigation: false,
+          distance: '',
+          time: ''
+        }
+      })
+
+      var navigate = function(){
+        console.log("r342");
+        map.showDirections({
+          latitude: 47.42209953906886,
+          longitude: 8.375177110719962,
+          floor: 1
+        }, {
+          placeId: place._id
+        }, {}, {}, function(err, directions){
+          if (err){
+            return console.log(error);
+          }
+          app.distance = Math.floor(directions.distance) + 'm';
+          app.time = new Date(1000 * Math.floor(directions.traveltime)).toISOString().substr(11, 8) + 's';
+          app.navigation = true;
+        });
+      }
       //use maxBounds to limit the visible area
       var map = Mapwize.map('map', {
-          apiKey: '3d2dafbf53a14c95cee47c2348f9c5c3',
-          floor: 1
+          apiKey: '3d2dafbf53a14c95cee47c2348f9c5c3',                             // Key to gain access to the demo building
+          maxBounds: [ [47.422932, 8.373202], [47.420236, 8.378015] ],
+          zoom: 21,
+          floor: 1,
+          center: [47.42209953906886, 8.375177110719962],
+          showUserPositionControl: false
+
       });
 
-  Mapwize.Api.venues.list({}, function (err, venues) {
-      // venues contain all venues you can access
-      console.log(venues);
-  });
-
-
-
-      map.centerOnVenue("5b8ffe23051cd90021bd526f");
-
-
+      map.centerOnPlace('5b9166237bfe470036ad4d2a');
       //Fits the bounds of the map so the entire region is visible.
-      //map.fitBounds(bounds);
+    //  map.fitBounds(bounds);
 
       map.on('click', function(e){
-          console.log('You just clicked on the map at location ' + e.latlng);
+          //console.log('You just clicked on the map at location ' + e.latlng);
       });
 
       map.on('placeClick', function(e){
-          console.log('You just clicked on ' + e.place.name);
+          console.log(e);
+          map.centerOnPlace(e.place);
+
+            app.name = e.place.name;
+            app.articles = e.place.data ? e.place.data.articles : [];
+            place = e.place;
+
       });
+
+
+      map.on('venueEnter', function (e) {
+        map.addMarker({
+          latitude: 47.42209953906886,
+          longitude: 8.375177110719962,
+          floor: 1});
+      });
+
 
       map.on('floorChanged', function(e){
           console.log('Floor changed to ' + e.floor);
       });
 
       map.on('floorsChanged', function(e){
-          console.log('Available floors at position changed to ' + e.floors);
+        //  console.log('Available floors at position changed to ' + e.floors);
+      });
+      map.setUserPosition({
+        latitude: 47.42209953906886,
+        longitude: 8.375177110719962,
+        floor: 1,
+        accuracy: 1
+      });
+      map.addMarker({
+        latitude: 47.42209953906886,
+        longitude: 8.375177110719962,
+        floor: 1
+      })
+
+      map.addMarker({
+        latitude: 47.422,
+        longitude: 8.375,
+        floor: 1
+      }, function (err, markerId) {
+        if (err) {
+          return console.error('addMarker failed', err);
+        }
+        //map.removeMarker(markerId);
       });
 
+
+
+
+
+
+
   </script>
+
 
 
 </body>
