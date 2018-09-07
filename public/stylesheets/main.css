@@ -24,3 +24,7 @@ ul{
   bottom:50px;
   right:50px;
 }
+
+.mapwize-attribution{
+  display: none !important;
+}
