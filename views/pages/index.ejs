@@ -27,30 +27,40 @@
 
          <div v-if="departments">
            <template v-for="(value, propertyName) in departments">
-             <div v-if="selectedFloor === propertyName ">
-             <ul class="list-group list-group-flush">
-              <li class="list-group-item" v-for="element in value">
-                <a href="#"  v-on:click.stop.prevent="clickOnPlace(element)">{{ element.name }}</a>
-                <p v-if="element.data !== undefined">
-                  <small>
-                    {{element.data.articles.join(', ')}}
-                  </small>
-                </p>
-              </li>
-            </ul>
+             <div v-if="selectedFloor === propertyName " class="container-fluid">
+             <dl class="row">
+               <template v-for="element in value">
+                <dt class="col-sm-3">
+                  <a href="#"  v-on:click.stop.prevent="clickOnPlace(element)">{{ element.name }}</a>
+                </dt>
+                <dd class="col-sm-9">
+                    <small v-if="element.data !== undefined">
+                      {{element.data.articles.join(', ')}}
+                    </small>
+                </dd>
+                <hr class="col-sm-11 mt-1 mb-1">
+              </template>
+            </dl>
             </div>
           </template>
          </div>
 
        </div>
        <div class="col-4">
-         <button type="button" v-on:click.stop.prevent="clickOnNavigate" class="btn btn-primary">Go there</button>
-         <button type="button" v-on:click.stop.prevent="clickOnCancelNavigate" class="btn">Cancel direction</button>
-         <div v-if="navigation">
-           <p>Distance: {{distance}}</p>
-           <p>Time: {{time}}</p>
+         <div id="facilities">
+           <button type="button" v-on:click.stop.prevent="clickOnGoTo('wc')" class="btn btn-link"><i class="fas fa-male fa-3x"></i><span class="h1">|</span><i class="fas fa-female fa-3x"></i><br>WC</button>
+           <button type="button" v-on:click.stop.prevent="clickOnGoTo('disabled')" class="btn btn-link"><i class="fas fa-wheelchair fa-3x"></i><br>WC</button>
+           <button type="button" v-on:click.stop.prevent="clickOnGoTo('restaurant')" class="btn btn-link"><i class="fas fa-utensils fa-3x"></i><br>Restaurant<br>& Cafe</button>
          </div>
-
+         <hr>
+         <div id="navigation">
+           <button type="button" v-bind:disabled="navigateDisabled" v-on:click.stop.prevent="clickOnNavigate" class="btn btn-primary"><i class="fas fa-route fa-3x"></i><br>Go there</button>
+           <button v-if="navDisplay" type="button" v-on:click.stop.prevent="clickOnCancelNavigate" class="btn">Cancel direction</button>
+           <div v-if="navDisplay">
+             <p>Distance: {{distance}}</p>
+             <p>Time: {{time}}</p>
+           </div>
+         </div>
        </div>
      </div>
 
