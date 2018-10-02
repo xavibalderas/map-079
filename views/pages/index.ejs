@@ -7,7 +7,7 @@
 <body>
 
   <header id="title">
-    <h1>Finde was du suchst <br>im IKEA</h1>
+    <h1>Finde was du suchst <br>im IKEA Spreitenbach</h1>
   </header>
   <div id="map"></div>
 
@@ -15,15 +15,37 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-8">
-          <h2>{{name}}</h2>
-          <ul class="list-group list-group-flush">
-           <li class="list-group-item" v-for="(item, index) in articles">
-           {{ item }}
-           </li>
-         </ul>
+          <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="collapse navbar-collapse" id="navbarNav">
+              <ul class="navbar-nav">
+                <li class="nav-item" v-for="(value, propertyName) in departments">
+                  <a class="nav-link" v-on:click.stop.prevent="clickOnFloor(propertyName)"  v-bind:class="[selectedFloor===propertyName ? 'active' : '']" href="#">Floor {{propertyName}}<span class="sr-only">(current)</span></a>
+                </li>
+              </ul>
+            </div>
+          </nav>
+
+         <div v-if="departments">
+           <template v-for="(value, propertyName) in departments">
+             <div v-if="selectedFloor === propertyName ">
+             <ul class="list-group list-group-flush">
+              <li class="list-group-item" v-for="element in value">
+                <a href="#"  v-on:click.stop.prevent="clickOnPlace(element)">{{ element.name }}</a>
+                <p v-if="element.data !== undefined">
+                  <small>
+                    {{element.data.articles.join(', ')}}
+                  </small>
+                </p>
+              </li>
+            </ul>
+            </div>
+          </template>
+         </div>
+
        </div>
        <div class="col-4">
-         <button type="button" onclick="navigate()"class="btn btn-primary">Go there</button>
+         <button type="button" v-on:click.stop.prevent="clickOnNavigate" class="btn btn-primary">Go there</button>
+         <button type="button" v-on:click.stop.prevent="clickOnCancelNavigate" class="btn">Cancel direction</button>
          <div v-if="navigation">
            <p>Distance: {{distance}}</p>
            <p>Time: {{time}}</p>
@@ -39,120 +61,6 @@
   </div>
 
   <script>
-
-      //Define the bounds of the map
-      var bounds = new L.LatLngBounds(
-              new L.LatLng(47.422932, 8.373202),
-              new L.LatLng(47.420236, 8.378015)
-      );
-
-      var art = [];
-      //Create the map
-
-      var place;
-
-      var app = new Vue({
-        el: '#app',
-        data: {
-          name: '',
-          articles: art,
-          navigation: false,
-          distance: '',
-          time: ''
-        }
-      })
-
-      var navigate = function(){
-        console.log("r342");
-        map.showDirections({
-          latitude: 47.42209953906886,
-          longitude: 8.375177110719962,
-          floor: 1
-        }, {
-          placeId: place._id
-        }, {}, {}, function(err, directions){
-          if (err){
-            return console.log(error);
-          }
-          app.distance = Math.floor(directions.distance) + 'm';
-          app.time = new Date(1000 * Math.floor(directions.traveltime)).toISOString().substr(11, 8) + 's';
-          app.navigation = true;
-        });
-      }
-      //use maxBounds to limit the visible area
-      var map = Mapwize.map('map', {
-          apiKey: '3d2dafbf53a14c95cee47c2348f9c5c3',                             // Key to gain access to the demo building
-          maxBounds: [ [47.422932, 8.373202], [47.420236, 8.378015] ],
-          zoom: 21,
-          floor: 1,
-          center: [47.42209953906886, 8.375177110719962],
-          showUserPositionControl: false
-
-      });
-
-      map.centerOnPlace('5b9166237bfe470036ad4d2a');
-      //Fits the bounds of the map so the entire region is visible.
-    //  map.fitBounds(bounds);
-
-      map.on('click', function(e){
-          //console.log('You just clicked on the map at location ' + e.latlng);
-      });
-
-      map.on('placeClick', function(e){
-          console.log(e);
-          map.centerOnPlace(e.place);
-
-            app.name = e.place.name;
-            app.articles = e.place.data ? e.place.data.articles : [];
-            place = e.place;
-
-      });
-
-
-      map.on('venueEnter', function (e) {
-        map.addMarker({
-          latitude: 47.42209953906886,
-          longitude: 8.375177110719962,
-          floor: 1});
-      });
-
-
-      map.on('floorChanged', function(e){
-          console.log('Floor changed to ' + e.floor);
-      });
-
-      map.on('floorsChanged', function(e){
-        //  console.log('Available floors at position changed to ' + e.floors);
-      });
-      map.setUserPosition({
-        latitude: 47.42209953906886,
-        longitude: 8.375177110719962,
-        floor: 1,
-        accuracy: 1
-      });
-      map.addMarker({
-        latitude: 47.42209953906886,
-        longitude: 8.375177110719962,
-        floor: 1
-      })
-
-      map.addMarker({
-        latitude: 47.422,
-        longitude: 8.375,
-        floor: 1
-      }, function (err, markerId) {
-        if (err) {
-          return console.error('addMarker failed', err);
-        }
-        //map.removeMarker(markerId);
-      });
-
-
-
-
-
-
-
   </script>
 
 
