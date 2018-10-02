@@ -46,7 +46,7 @@ window.onload = function () {
   });
 
    mapwizeMap.on('mapwize:ready', e => {
-     console.log('Maps is now ready to be used')
+
      mapwizeMap.setFloor(initConfig.floor);
      mapwizeMap.setUserPosition(initConfig.userPosition);
 
@@ -64,16 +64,22 @@ window.onload = function () {
 
      mapwizeMap.on('mapwize:venueenter', venue => {
        loadPlaces();
+       setupTimers();
      });
 
      mapwizeMap.on('mapwize:floorchange', floor => {
        app.selectedFloor = floor.floor;
      });
 
+     mapwizeMap.on('move', () => {
+       resetTimer();
+     });
+
      mapwizeMap.on('mapwize:click', e => {
        if (e.place !== null){
          showPlace(e.place);
          app.navigateDisabled = false;
+
        }
           // app.name = e.place.name;
           // app.articles = e.place.data ? e.place.data.articles : [];
@@ -100,11 +106,13 @@ window.onload = function () {
          });
         mapwizeMap.centerOnPlace(place);
         selectedPlace = place;
+        resetTimer();
       };
     } //showplace
     var changeFloor = (floor) => {
         app.selectedFloor = floor;
         mapwizeMap.setFloor(floor);
+        resetTimer();
     }
 
     var navigate = () => {
@@ -122,6 +130,9 @@ window.onload = function () {
         options: {}
         }).then(direction => {
           mapwizeMap.setDirection(direction);
+          app.distance = Math.floor(direction.distance) + 'm';
+          app.time = new Date(1000 * Math.floor(direction.traveltime)).toISOString().substr(11, 8) + 's';
+          resetTimer();
         });
     } //navigate
 
@@ -155,6 +166,14 @@ window.onload = function () {
       })
     };
 
+    var reload = function(){
+      console.log("reload");
+      mapwizeMap.removeDirection();
+      initPosition();
+      app.navigateDisabled = true;
+      app.navDisplay = false;
+    }
+
 
 
       var app = new Vue({
@@ -167,7 +186,7 @@ window.onload = function () {
           distance: '',
           time: '',
           selectedFloor : initConfig.floor,
-          navigateDisabled: false,
+          navigateDisabled: true,
           map: mapwizeMap
         },
         computed: {
@@ -192,7 +211,7 @@ window.onload = function () {
             initPosition();
             this.navigateDisabled = true;
             this.navDisplay = false;
-
+            resetTimer();
           },
           clickOnGoTo: function(placeName)  {
             const _place = findPlaceById(facilities[placeName]);
@@ -203,4 +222,35 @@ window.onload = function () {
           }
         }
       }); //VUE
+
+
+      var timeoutInMiliseconds = 30000; //1000 = 1 second
+      var timeoutId;
+
+      function startTimer() {
+          // window.setTimeout returns an Id that can be used to start and stop a timer
+          timeoutId = window.setTimeout(doInactive, timeoutInMiliseconds)
+      }
+
+      function resetTimer() {
+        window.clearTimeout(timeoutId)
+        startTimer();
+      }
+
+      function doInactive() {
+          // does whatever you need it to actually do - probably signs them out or stops polling the server for info
+          reload();
+          resetTimer();
+      }
+      function setupTimers () {
+        document.addEventListener("mousemove", resetTimer, false);
+        document.addEventListener("mousedown", resetTimer, false);
+        document.addEventListener("keypress", resetTimer, false);
+        document.addEventListener("touchmove", resetTimer, false);
+
+        startTimer();
+      }
+
+
+
  }
