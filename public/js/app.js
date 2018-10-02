@@ -142,7 +142,7 @@ window.onload = function () {
       }).then(places => {
         var floors = mapwizeMap.getFloors();
         floors.sort();
-        console.log(places);
+        //console.log(places);
         allPlaces = Object.assign({}, places);
         departments = floors.map((currentValue)=>(departments[currentValue] = []));
         places.forEach((element)=>{
@@ -152,8 +152,8 @@ window.onload = function () {
             departments[floor].push(element);
           }
         })
-        console.log(departments);
-        console.log(allPlaces);
+        //console.log(departments);
+      //  console.log(allPlaces);
         app.departments = departments;
       });
     }
@@ -167,7 +167,7 @@ window.onload = function () {
     };
 
     var reload = function(){
-      console.log("reload");
+      //console.log("reload");
       mapwizeMap.removeDirection();
       initPosition();
       app.navigateDisabled = true;
@@ -215,7 +215,7 @@ window.onload = function () {
           },
           clickOnGoTo: function(placeName)  {
             const _place = findPlaceById(facilities[placeName]);
-            console.log(_place);
+            //console.log(_place);
             showPlace(_place);
             navigate();
             this.navDisplay = true;
